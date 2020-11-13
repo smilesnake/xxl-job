@@ -1,70 +1,53 @@
 package com.xxl.job.core.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 
 /**
+ * jdk序列化工具类
+ *
  * @author xuxueli 2020-04-12 0:14:00
  */
+@Slf4j
 public class JdkSerializeTool {
-    private static Logger logger = LoggerFactory.getLogger(JdkSerializeTool.class);
-
-
+    private JdkSerializeTool() {
+    }
     // ------------------------ serialize and unserialize ------------------------
 
     /**
-     * 将对象-->byte[] (由于jedis中不支持直接存储object所以转换成byte[]存入)
+     * 序列化对象,将对象-->byte[] (由于jedis中不支持直接存储object所以转换成byte[]存入).
      *
-     * @param object
-     * @return
+     * @param object 待序列化对象
+     * @return 序列化的字节码
      */
     public static byte[] serialize(Object object) {
-        ObjectOutputStream oos = null;
-        ByteArrayOutputStream baos = null;
-        try {
+        try (
+                ByteArrayOutputStream byteArrayInputStream = new ByteArrayOutputStream();
+                ObjectOutputStream oos = new ObjectOutputStream(byteArrayInputStream)) {
             // 序列化
-            baos = new ByteArrayOutputStream();
-            oos = new ObjectOutputStream(baos);
             oos.writeObject(object);
-            byte[] bytes = baos.toByteArray();
-            return bytes;
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        } finally {
-            try {
-                oos.close();
-                baos.close();
-            } catch (IOException e) {
-                logger.error(e.getMessage(), e);
-            }
+            return byteArrayInputStream.toByteArray();
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
         }
-        return null;
+        return new byte[]{};
     }
 
 
     /**
-     * 将byte[] -->Object
+     * 返序列化，将byte[] -->Object
      *
-     * @param bytes
-     * @return
+     * @param bytes 待反序列化对象
+     * @return 反序列化生成的对象
      */
-    public static  <T> Object deserialize(byte[] bytes, Class<T> clazz) {
-        ByteArrayInputStream bais = null;
-        try {
+    public static Object deserialize(byte[] bytes) {
+        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
+             ObjectInputStream ois = new ObjectInputStream(byteArrayInputStream)) {
             // 反序列化
-            bais = new ByteArrayInputStream(bytes);
-            ObjectInputStream ois = new ObjectInputStream(bais);
             return ois.readObject();
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        } finally {
-            try {
-                bais.close();
-            } catch (IOException e) {
-                logger.error(e.getMessage(), e);
-            }
+            log.error(e.getMessage(), e);
         }
         return null;
     }

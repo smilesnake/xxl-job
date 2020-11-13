@@ -1,38 +1,74 @@
 package com.xxl.job.core.handler.impl;
 
+import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.context.XxlJobContext;
-import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.glue.GlueTypeEnum;
 import com.xxl.job.core.handler.IJobHandler;
 import com.xxl.job.core.log.XxlJobFileAppender;
+import com.xxl.job.core.log.XxlJobLogger;
 import com.xxl.job.core.util.ScriptUtil;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ArrayUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 /**
- * Created by xuxueli on 17/4/27.
+ * 脚本任务处理器，处理 glue非GLUE_GROOVY的所有类型.
+ *
+ * @author xuxueli
+ * @date 17/4/27
  */
+@Slf4j
 public class ScriptJobHandler extends IJobHandler {
-
+    /**
+     * 任务id.
+     */
     private int jobId;
-    private long glueUpdatetime;
-    private String gluesource;
+    /**
+     * GLUE更新时间.
+     */
+    @Getter
+    private long glueUpdateTime;
+    /**
+     * GLUE源码.
+     */
+    private String glueSource;
+    /**
+     * GLUE类型.
+     *
+     * @see com.xxl.job.core.glue.GlueTypeEnum
+     */
     private GlueTypeEnum glueType;
 
-    public ScriptJobHandler(int jobId, long glueUpdatetime, String gluesource, GlueTypeEnum glueType){
+    /**
+     * 创建脚本任务处理器.
+     *
+     * @param jobId          任务id
+     * @param glueUpdateTime GLUE更新时间
+     * @param glueSource     GLUE源码
+     * @param glueType       GLUE类型
+     */
+    public ScriptJobHandler(int jobId, long glueUpdateTime, String glueSource, GlueTypeEnum glueType) {
         this.jobId = jobId;
-        this.glueUpdatetime = glueUpdatetime;
-        this.gluesource = gluesource;
+        this.glueUpdateTime = glueUpdateTime;
+        this.glueSource = glueSource;
         this.glueType = glueType;
 
-        // clean old script file
+        // 清理旧的脚本文件
         File glueSrcPath = new File(XxlJobFileAppender.getGlueSrcPath());
         if (glueSrcPath.exists()) {
             File[] glueSrcFileList = glueSrcPath.listFiles();
-            if (glueSrcFileList!=null && glueSrcFileList.length>0) {
+            if (ArrayUtils.isNotEmpty(glueSrcFileList)) {
                 for (File glueSrcFileItem : glueSrcFileList) {
-                    if (glueSrcFileItem.getName().startsWith(String.valueOf(jobId)+"_")) {
-                        glueSrcFileItem.delete();
+                    if (glueSrcFileItem.getName().startsWith(jobId + "_")) {
+                        try {
+                            Files.delete(glueSrcFileItem.toPath());
+                        } catch (IOException e) {
+                            log.error(e.getMessage(), e);
+                        }
                     }
                 }
             }
@@ -40,52 +76,45 @@ public class ScriptJobHandler extends IJobHandler {
 
     }
 
-    public long getGlueUpdatetime() {
-        return glueUpdatetime;
-    }
-
     @Override
-    public void execute() throws Exception {
-
+    public ReturnT<String> execute(String param) throws IOException {
+        //非脚本不执行
         if (!glueType.isScript()) {
-            XxlJobHelper.handleFail("glueType["+ glueType +"] invalid.");
-            return;
+            return new ReturnT<>(IJobHandler.FAIL.getCode(), "glueType[" + glueType + "] invalid.");
         }
 
         // cmd
         String cmd = glueType.getCmd();
 
-        // make script file
+        //  生成脚本文件
         String scriptFileName = XxlJobFileAppender.getGlueSrcPath()
                 .concat(File.separator)
                 .concat(String.valueOf(jobId))
                 .concat("_")
-                .concat(String.valueOf(glueUpdatetime))
+                .concat(String.valueOf(glueUpdateTime))
                 .concat(glueType.getSuffix());
         File scriptFile = new File(scriptFileName);
         if (!scriptFile.exists()) {
-            ScriptUtil.markScriptFile(scriptFileName, gluesource);
+            ScriptUtil.markScriptFile(scriptFileName, glueSource);
         }
 
-        // log file
+        //日志文件
         String logFileName = XxlJobContext.getXxlJobContext().getJobLogFileName();
 
-        // script params：0=param、1=分片序号、2=分片总数
+        // 脚本参数：0=param、1=分片序号、2=分片总数
         String[] scriptParams = new String[3];
-        scriptParams[0] = XxlJobHelper.getJobParam();
+        scriptParams[0] = param;
         scriptParams[1] = String.valueOf(XxlJobContext.getXxlJobContext().getShardIndex());
         scriptParams[2] = String.valueOf(XxlJobContext.getXxlJobContext().getShardTotal());
 
-        // invoke
-        XxlJobHelper.log("----------- script file:"+ scriptFileName +" -----------");
+        // 调用脚本
+        XxlJobLogger.log("----------- script file:" + scriptFileName + " -----------");
         int exitValue = ScriptUtil.execToFile(cmd, scriptFileName, logFileName, scriptParams);
 
         if (exitValue == 0) {
-            XxlJobHelper.handleSuccess();
-            return;
+            return IJobHandler.SUCCESS;
         } else {
-            XxlJobHelper.handleFail("script exit value("+exitValue+") is failed");
-            return ;
+            return new ReturnT<>(IJobHandler.FAIL.getCode(), "script exit value(" + exitValue + ") is failed");
         }
 
     }

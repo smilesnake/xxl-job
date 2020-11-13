@@ -1,38 +1,68 @@
 package com.xxl.job.core.handler;
 
+import com.xxl.job.core.biz.model.ReturnT;
+import com.xxl.job.core.thread.JobThread;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+
 /**
- * job handler
+ * 任务处理器.
  *
  * @author xuxueli 2015-12-19 19:06:38
  */
 public abstract class IJobHandler {
 
 
-	/**
-	 * execute handler, invoked when executor receives a scheduling request
-	 *
-	 * @throws Exception
-	 */
-	public abstract void execute() throws Exception;
+    /**
+     * 成功
+     */
+    public static final ReturnT<String> SUCCESS = new ReturnT<>(200, null);
+    /**
+     * 失败
+     */
+    public static final ReturnT<String> FAIL = new ReturnT<>(500, null);
+    /**
+     * 超时
+     */
+    public static final ReturnT<String> FAIL_TIMEOUT = new ReturnT<>(502, null);
 
 
-	/*@Deprecated
-	public abstract ReturnT<String> execute(String param) throws Exception;*/
+    /**
+     * 执行处理器，当executor收到调度请求时调用
+     *
+     * @param param 用于方法调用的参数
+     * @return 执行结果
+     * @throws InvocationTargetException 反射异常
+     * @throws IllegalAccessException    没有访问权限，抛出
+     * @throws IOException               写读异常
+     * @throws InterruptedException      中断，抛出
+     */
+    public abstract ReturnT<String> execute(String param) throws InvocationTargetException, IllegalAccessException, IOException, InterruptedException;
 
-	/**
-	 * init handler, invoked when JobThread init
-	 */
-	public void init() throws Exception {
-		// do something
-	}
+
+    /**
+     * 初始化处理程序，在JobThread初始化时调用
+     *
+     * @throws InvocationTargetException 反射异常
+     * @throws IllegalAccessException    没有访问权限，抛出
+     * @see JobThread
+     */
+    public void init() throws InvocationTargetException, IllegalAccessException {
+        // do something
+    }
 
 
-	/**
-	 * destroy handler, invoked when JobThread destroy
-	 */
-	public void destroy() throws Exception {
-		// do something
-	}
+    /**
+     * 销毁处理程序，在JobThread销毁时调用
+     *
+     * @throws InvocationTargetException 反射异常
+     * @throws IllegalAccessException    没有访问权限，抛出
+     * @see JobThread
+     */
+    public void destroy() throws InvocationTargetException, IllegalAccessException {
+        // do something
+    }
 
 
 }

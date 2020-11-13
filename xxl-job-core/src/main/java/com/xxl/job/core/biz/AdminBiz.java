@@ -7,6 +7,8 @@ import com.xxl.job.core.biz.model.ReturnT;
 import java.util.List;
 
 /**
+ * 调度中心
+ *
  * @author xuxueli 2017-07-27 21:52:49
  */
 public interface AdminBiz {
@@ -15,31 +17,37 @@ public interface AdminBiz {
     // ---------------------- callback ----------------------
 
     /**
-     * callback
+     * RPC回调
      *
-     * @param callbackParamList
-     * @return
+     * @param callbackParamList 回调参数列表
+     * @return 成功，ReturnT.SUCCESS.否则,ReturnT.FAIL_CODE
+     * @see ReturnT#SUCCESS
+     * @see ReturnT#FAIL_CODE
      */
-    public ReturnT<String> callback(List<HandleCallbackParam> callbackParamList);
+    ReturnT<String> callback(List<HandleCallbackParam> callbackParamList);
 
 
     // ---------------------- registry ----------------------
 
     /**
-     * registry
+     * RPC 注册.
      *
-     * @param registryParam
-     * @return
+     * @param registryParam 注册参数
+     * @return 成功，ReturnT.SUCCESS.否则,ReturnT.FAIL_CODE
+     * @see ReturnT#SUCCESS
+     * @see ReturnT#FAIL_CODE
      */
-    public ReturnT<String> registry(RegistryParam registryParam);
+    ReturnT<String> registry(RegistryParam registryParam);
 
     /**
-     * registry remove
+     * RPC 移除注册.
      *
-     * @param registryParam
-     * @return
+     * @param registryParam 注册参数
+     * @return 成功，ReturnT.SUCCESS.否则,ReturnT.FAIL_CODE
+     * @see ReturnT#SUCCESS
+     * @see ReturnT#FAIL_CODE
      */
-    public ReturnT<String> registryRemove(RegistryParam registryParam);
+    ReturnT<String> registryRemove(RegistryParam registryParam);
 
 
     // ---------------------- biz (custome) ----------------------

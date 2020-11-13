@@ -1,34 +1,41 @@
 package com.xxl.job.core.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.ServerSocket;
 
 /**
- * net util
+ * 网络工具类
  *
  * @author xuxueli 2017-11-29 17:00:25
  */
+@Slf4j
 public class NetUtil {
-    private static Logger logger = LoggerFactory.getLogger(NetUtil.class);
+    private NetUtil() {
+    }
 
     /**
-     * find avaliable port
+     * 找到可用的端口号.
      *
-     * @param defaultPort
-     * @return
+     * @param defaultPort 默认的端口号
+     * @return 可用的端口号
+     * @throws BindException 端口绑定错误
      */
-    public static int findAvailablePort(int defaultPort) {
+    public static int findAvailablePort(int defaultPort) throws BindException {
         int portTmp = defaultPort;
-        while (portTmp < 65535) {
+        //向上查找
+        //最大端口值          
+        int maxPort = (2 << 15) - 1;
+        while (portTmp < maxPort) {
             if (!isPortUsed(portTmp)) {
                 return portTmp;
             } else {
                 portTmp++;
             }
         }
+        //向下查找
         portTmp = defaultPort--;
         while (portTmp > 0) {
             if (!isPortUsed(portTmp)) {
@@ -37,34 +44,23 @@ public class NetUtil {
                 portTmp--;
             }
         }
-        throw new RuntimeException("no available port.");
+        throw new BindException("no available port.");
     }
 
     /**
-     * check port used
+     * 检查端口是否使用.
      *
-     * @param port
-     * @return
+     * @param port 端口号
+     * @return 端口已使用，返回true,否则，false
      */
-    public static boolean isPortUsed(int port) {
+    private static boolean isPortUsed(int port) {
         boolean used = false;
-        ServerSocket serverSocket = null;
-        try {
-            serverSocket = new ServerSocket(port);
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
             used = false;
         } catch (IOException e) {
-            logger.info(">>>>>>>>>>> xxl-rpc, port[{}] is in use.", port);
             used = true;
-        } finally {
-            if (serverSocket != null) {
-                try {
-                    serverSocket.close();
-                } catch (IOException e) {
-                    logger.info("");
-                }
-            }
+            log.info(">>>>>>>>>>> xxl-rpc, port[{}] is in use.", port);
         }
         return used;
     }
-
 }

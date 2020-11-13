@@ -3,7 +3,7 @@ package com.xxl.job.core.handler.annotation;
 import java.lang.annotation.*;
 
 /**
- * annotation for method jobhandler
+ * 任务处理器注解
  *
  * @author xuxueli 2019-12-11 20:50:13
  */
@@ -13,17 +13,17 @@ import java.lang.annotation.*;
 public @interface XxlJob {
 
     /**
-     * jobhandler name
+     * 任务处理器的名称
      */
     String value();
 
     /**
-     * init handler, invoked when JobThread init
+     * 初始化处理器，当任务线程初始化时调用
      */
     String init() default "";
 
     /**
-     * destroy handler, invoked when JobThread destroy
+     * 销毁处理器,当处理器销毁时调用
      */
     String destroy() default "";
 

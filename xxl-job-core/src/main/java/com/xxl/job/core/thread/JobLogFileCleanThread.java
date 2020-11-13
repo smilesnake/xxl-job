@@ -2,18 +2,18 @@ package com.xxl.job.core.thread;
 
 import com.xxl.job.core.log.XxlJobFileAppender;
 import com.xxl.job.core.util.FileUtil;
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
 /**
- * job file clean thread
+ * 任务文件清理线程
  *
  * @author xuxueli 2017-12-29 16:23:43
  */
@@ -21,103 +21,88 @@ public class JobLogFileCleanThread {
     private static Logger logger = LoggerFactory.getLogger(JobLogFileCleanThread.class);
 
     private static JobLogFileCleanThread instance = new JobLogFileCleanThread();
-    public static JobLogFileCleanThread getInstance(){
+
+    public static JobLogFileCleanThread getInstance() {
         return instance;
     }
 
+    /**
+     * 本地线程.
+     */
     private Thread localThread;
+    /**
+     * 是否尝试停止.
+     */
     private volatile boolean toStop = false;
-    public void start(final long logRetentionDays){
 
-        // limit min value
-        if (logRetentionDays < 3 ) {
+    /**
+     * 开始执行.
+     *
+     * @param logRetentionDays 日志保留天数
+     */
+    public void start(final long logRetentionDays) {
+        // 最小保留三天
+        final int retentionMinDay = 3;
+        if (logRetentionDays < retentionMinDay) {
             return;
         }
 
-        localThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (!toStop) {
-                    try {
-                        // clean log dir, over logRetentionDays
-                        File[] childDirs = new File(XxlJobFileAppender.getLogPath()).listFiles();
-                        if (childDirs!=null && childDirs.length>0) {
-
-                            // today
-                            Calendar todayCal = Calendar.getInstance();
-                            todayCal.set(Calendar.HOUR_OF_DAY,0);
-                            todayCal.set(Calendar.MINUTE,0);
-                            todayCal.set(Calendar.SECOND,0);
-                            todayCal.set(Calendar.MILLISECOND,0);
-
-                            Date todayDate = todayCal.getTime();
-
-                            for (File childFile: childDirs) {
-
-                                // valid
-                                if (!childFile.isDirectory()) {
-                                    continue;
-                                }
-                                if (childFile.getName().indexOf("-") == -1) {
-                                    continue;
-                                }
-
-                                // file create date
-                                Date logFileCreateDate = null;
-                                try {
-                                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                                    logFileCreateDate = simpleDateFormat.parse(childFile.getName());
-                                } catch (ParseException e) {
-                                    logger.error(e.getMessage(), e);
-                                }
-                                if (logFileCreateDate == null) {
-                                    continue;
-                                }
-
-                                if ((todayDate.getTime()-logFileCreateDate.getTime()) >= logRetentionDays * (24 * 60 * 60 * 1000) ) {
-                                    FileUtil.deleteRecursively(childFile);
-                                }
-
-                            }
+        localThread = new Thread(() -> {
+            while (!toStop) {
+                // 超过日志保留天数,清除日志目录
+                File[] childDirs = new File(XxlJobFileAppender.getLogBasePath()).listFiles();
+                if (ArrayUtils.isNotEmpty(childDirs)) {
+                    for (File childFile : childDirs) {
+                        // valid
+                        if (!childFile.isDirectory() || !childFile.getName().contains("-")) {
+                            continue;
                         }
-
-                    } catch (Exception e) {
-                        if (!toStop) {
-                            logger.error(e.getMessage(), e);
+                        // 文件创建日期
+                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                        LocalDate logFileCreateDate = LocalDate.parse(childFile.getName(), dtf);
+                        if (logFileCreateDate == null) {
+                            continue;
                         }
-
-                    }
-
-                    try {
-                        TimeUnit.DAYS.sleep(1);
-                    } catch (InterruptedException e) {
-                        if (!toStop) {
-                            logger.error(e.getMessage(), e);
+                        //超出回收天数，删除文件
+                        if (logFileCreateDate.until(LocalDate.now(), ChronoUnit.DAYS) >= logRetentionDays) {
+                            FileUtil.deleteRecursively(childFile);
                         }
                     }
                 }
-                logger.info(">>>>>>>>>>> xxl-job, executor JobLogFileCleanThread thread destory.");
-
+                try {
+                    TimeUnit.DAYS.sleep(1);
+                } catch (InterruptedException e) {
+                    if (!toStop) {
+                        logger.error(e.getMessage(), e);
+                    }
+                    Thread.currentThread().interrupt();
+                }
             }
+            logger.info(">>>>>>>>>>> xxl-job, executor JobLogFileCleanThread thread destory.");
+
         });
         localThread.setDaemon(true);
         localThread.setName("xxl-job, executor JobLogFileCleanThread");
         localThread.start();
     }
 
+    /**
+     * 暂停.
+     */
     public void toStop() {
         toStop = true;
 
         if (localThread == null) {
             return;
         }
-
-        // interrupt and wait
+        // 中断
         localThread.interrupt();
         try {
+            // 在子线程调用了join(),只有等到子线程结束了主线程才能中断
             localThread.join();
         } catch (InterruptedException e) {
             logger.error(e.getMessage(), e);
+            Thread.currentThread().interrupt();
         }
     }
 
