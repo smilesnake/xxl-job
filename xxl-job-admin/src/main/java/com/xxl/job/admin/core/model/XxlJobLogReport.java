@@ -1,54 +1,34 @@
 package com.xxl.job.admin.core.model;
 
-import java.util.Date;
+import lombok.Data;
 
+import java.time.LocalDateTime;
+
+/**
+ * 任务日志报告
+ *
+ * @author xuxueli
+ */
+@Data
 public class XxlJobLogReport {
-
+    /**
+     * 主键id.
+     */
     private int id;
-
-    private Date triggerDay;
-
+    /**
+     * 调度 - 时间.
+     */
+    private LocalDateTime triggerDay;
+    /**
+     * 运行中 - 日志数量.
+     */
     private int runningCount;
+    /**
+     * 执行成功 - 日志数量.
+     */
     private int sucCount;
+    /**
+     * 执行失败 - 日志数量.
+     */
     private int failCount;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public Date getTriggerDay() {
-        return triggerDay;
-    }
-
-    public void setTriggerDay(Date triggerDay) {
-        this.triggerDay = triggerDay;
-    }
-
-    public int getRunningCount() {
-        return runningCount;
-    }
-
-    public void setRunningCount(int runningCount) {
-        this.runningCount = runningCount;
-    }
-
-    public int getSucCount() {
-        return sucCount;
-    }
-
-    public void setSucCount(int sucCount) {
-        this.sucCount = sucCount;
-    }
-
-    public int getFailCount() {
-        return failCount;
-    }
-
-    public void setFailCount(int failCount) {
-        this.failCount = failCount;
-    }
 }

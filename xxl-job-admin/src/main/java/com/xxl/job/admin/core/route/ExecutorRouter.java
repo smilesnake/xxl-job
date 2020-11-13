@@ -1,23 +1,22 @@
 package com.xxl.job.admin.core.route;
 
 import com.xxl.job.core.biz.model.ReturnT;
-import com.xxl.job.core.biz.model.TriggerParam;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.xxl.job.core.biz.model.remote.TriggerParam;
 
 import java.util.List;
 
 /**
- * Created by xuxueli on 17/3/10.
+ * 路由执行器.
+ *
+ * @author xuxueli on 17/3/10.
  */
 public abstract class ExecutorRouter {
-    protected static Logger logger = LoggerFactory.getLogger(ExecutorRouter.class);
-
     /**
-     * route address
+     * 路由地址
      *
-     * @param addressList
-     * @return  ReturnT.content=address
+     * @param triggerParam 调度参数
+     * @param addressList  地址列表
+     * @return ReturnT.content=address,返回为路由后的地址
      */
     public abstract ReturnT<String> route(TriggerParam triggerParam, List<String> addressList);
 
