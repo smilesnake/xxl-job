@@ -1,28 +1,23 @@
 package com.xxl.job.core.biz.model;
 
 import java.io.Serializable;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
+ * 终止参数
  * @author xuxueli 2020-04-11 22:27
  */
-public class KillParam implements Serializable {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class KillParam implements Param {
     private static final long serialVersionUID = 42L;
 
-    public KillParam() {
-    }
-    public KillParam(int jobId) {
-        this.jobId = jobId;
-    }
-
+    /**
+     * 任务id.
+     */
     private int jobId;
-
-
-    public int getJobId() {
-        return jobId;
-    }
-
-    public void setJobId(int jobId) {
-        this.jobId = jobId;
-    }
 
 }

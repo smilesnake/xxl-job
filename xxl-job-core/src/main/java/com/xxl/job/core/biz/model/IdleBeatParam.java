@@ -1,28 +1,24 @@
 package com.xxl.job.core.biz.model;
 
 import java.io.Serializable;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
+ * 空闲检测参数
  * @author xuxueli 2020-04-11 22:27
  */
-public class IdleBeatParam implements Serializable {
-    private static final long serialVersionUID = 42L;
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class IdleBeatParam implements Param {
 
-    public IdleBeatParam() {
-    }
-    public IdleBeatParam(int jobId) {
-        this.jobId = jobId;
-    }
+  private static final long serialVersionUID = 42L;
 
-    private int jobId;
-
-
-    public int getJobId() {
-        return jobId;
-    }
-
-    public void setJobId(int jobId) {
-        this.jobId = jobId;
-    }
+  /**
+   * 任务id
+   */
+  private int jobId;
 
 }

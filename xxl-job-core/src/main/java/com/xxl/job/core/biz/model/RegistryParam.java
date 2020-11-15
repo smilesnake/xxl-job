@@ -14,7 +14,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegistryParam implements Serializable {
+public class RegistryParam implements Param {
 
     private static final long serialVersionUID = 42L;
     /**

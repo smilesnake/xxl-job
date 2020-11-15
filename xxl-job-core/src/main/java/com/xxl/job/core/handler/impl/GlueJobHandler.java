@@ -1,13 +1,11 @@
 package com.xxl.job.core.handler.impl;
 
-import com.xxl.job.core.biz.model.ReturnT;
+import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.IJobHandler;
-import com.xxl.job.core.log.XxlJobLogger;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * glue任务处理器
@@ -16,19 +14,21 @@ import java.lang.reflect.InvocationTargetException;
  */
 @AllArgsConstructor
 public class GlueJobHandler extends IJobHandler {
-    /**
-     * 任务处理器
-     */
-    private IJobHandler jobHandler;
-    /**
-     * GLUE更新时间
-     */
-    @Getter
-    private long glueUpdateTime;
 
-    @Override
-    public ReturnT<String> execute(String param) throws InterruptedException, IllegalAccessException, IOException, InvocationTargetException {
-        XxlJobLogger.log("----------- glue.version:" + glueUpdateTime + " -----------");
-        return jobHandler.execute(param);
-    }
+  /**
+   * 任务处理器
+   */
+  private IJobHandler jobHandler;
+  /**
+   * GLUE更新时间
+   */
+  @Getter
+  private long glueUpdateTime;
+
+  @Override
+  public void execute()
+      throws InterruptedException, IllegalAccessException, IOException, InvocationTargetException {
+    XxlJobHelper.log("----------- glue.version:" + glueUpdateTime + " -----------");
+    jobHandler.execute();
+  }
 }

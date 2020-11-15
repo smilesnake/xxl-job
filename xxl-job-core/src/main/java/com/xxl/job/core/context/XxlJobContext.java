@@ -2,13 +2,13 @@ package com.xxl.job.core.context;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * xxl-job 上下文
  *
  * @author xuxueli 2020-05-21 [Dear hj]
  */
-@AllArgsConstructor
 @Getter
 public class XxlJobContext {
 
@@ -55,13 +55,27 @@ public class XxlJobContext {
    * <p>
    * 200 : success 500 : fail 502 : timeout
    */
+  @Setter
   private int handleCode;
 
   /**
    * handleMsg: 作业执行的简单日志
    */
+  @Setter
   private String handleMsg;
 
+
+  public XxlJobContext(long jobId, String jobParam, String jobLogFileName, int shardIndex,
+      int shardTotal) {
+    this.jobId = jobId;
+    this.jobParam = jobParam;
+    this.jobLogFileName = jobLogFileName;
+    this.shardIndex = shardIndex;
+    this.shardTotal = shardTotal;
+
+    //默认为成功
+    this.handleCode = HANDLE_COCE_SUCCESS;
+  }
   // ---------------------- tool ----------------------
   /**
    * 上下文持有者,支持任务处理器的子线程,即父线程生成的变量需要传递到子线程中进行使用

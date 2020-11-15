@@ -1,6 +1,5 @@
 package com.xxl.job.core.biz.model;
 
-import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class HandleCallbackParam implements Serializable {
+public class HandleCallbackParam implements Param {
 
   private static final long serialVersionUID = 42L;
   /**

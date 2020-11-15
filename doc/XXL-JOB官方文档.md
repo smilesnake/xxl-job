@@ -1791,7 +1791,7 @@ Tips: 历史版本(V1.3.x)目前已经Release至稳定版本, 进入维护阶段
 ### 7.18 版本 V1.8.0 特性[2017-07-17]
 - 1、任务Cron更新逻辑优化，改为rescheduleJob，同时防止cron重复设置；
 - 2、API回调服务失败状态码优化，方便问题排查；
-- 3、XxlJobLogger的日志多参数支持；
+- 3、XxlJobHelper的日志多参数支持；
 - 4、路由策略新增 "忙碌转移" 模式：按照顺序依次进行空闲检测，第一个空闲检测成功的机器选定为目标执行器并发起调度；
 - 5、路由策略代码重构；
 - 6、执行器重复注册问题修复；
@@ -2017,7 +2017,7 @@ Tips: 历史版本(V1.3.x)目前已经Release至稳定版本, 进入维护阶段
 ```
 @XxlJob("demoJobHandler")
 public ReturnT<String> execute(String param) {
-    XxlJobLogger.log("hello world");
+    XxlJobHelper.log("hello world");
     return ReturnT.SUCCESS;
 }
 ```
@@ -2063,7 +2063,7 @@ data: post-data
 - 2、【新增】触发策略：除了常规Cron、API、父子任务触发方式外，新增提供 "固定间隔触发、（固定延时触发，实验中）" 新触发方式；
 - 3、【新增】新增任务辅助工具 "XxlJobHelper"：提供统一任务辅助能力，包括：任务上下文信息维护获取（任务参数、任务ID、分片参数）、日志输出、任务结果设置……等；
     - 3.1、"ShardingUtil" 组件废弃：改用 "XxlJobHelper.getShardIndex()/getShardTotal();" 获取分片参数；
-    - 3.2、"XxlJobLogger" 组件废弃：改用 "XxlJobHelper.log" 进行日志输出；
+    - 3.2、"XxlJobHelper" 组件废弃：改用 "XxlJobHelper.log" 进行日志输出；
 - 4、【优化】任务核心类 "IJobHandler" 的 "execute" 方法取消出入参设计。改为通过 "XxlJobHelper.getJobParam" 获取任务参数并替代方法入参，通过 "XxlJobHelper.handleSuccess/handleFail" 设置任务结果并替代方法出参； 
 - 4、【优化】Cron编辑器增强：Cron编辑器修改cron时可实时查看最近运行时间;
 - 5、【优化】执行器示例项目规范整理；

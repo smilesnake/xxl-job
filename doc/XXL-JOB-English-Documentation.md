@@ -936,7 +936,7 @@ Executor will identify Bean mode task in spring container through @JobHandler Wh
 When executor received schedule request from schedule center, if task type is “Bean模式” it will match bean mode task in Spring container and call it’s execute() method and execute task logic. if task type is “GLUE模式”, it will load Glue code, instantiate a Java object and inject other spring service（notice: the spring service injected in Glue code must exist in the same executor project）, then call execute() method and execute task logic. 
 
 #### 5.5.5 task log
-XXL-JOB will generate a log file for every schedule request, the log info will be recorded by XxlJobLogger.log() method, the log file will be loaded when view log info through schedule center.
+XXL-JOB will generate a log file for every schedule request, the log info will be recorded by XxlJobHelper.log() method, the log file will be loaded when view log info through schedule center.
 
 (history version is implemented by overriding LOG4J’s Appender so it exists dependency restrictions, The way has been discraded in the new version)
 
@@ -1187,7 +1187,7 @@ Tips: V1.3.x release has been published , enter the maintenance phase, branch  a
 ### 6.17 version V1.8.0 New features [2017-07-17]
 - 1、optimize update logic of task Cron，instead of rescheduleJob，at the same time preventing set cron repeatedly;
 - 2、optimize API callback service failed status code，facilitate troubleshooting;
-- 3、XxlJobLogger support multi-parameter;
+- 3、XxlJobHelper support multi-parameter;
 - 4、route policy add "忙碌转移" mode:Perform idle detection in sequence，The first idle test successfully machine is selected as the target executor and trigger schedule;
 - 5、reconstruct route policy code;
 - 6、fix executor repeat registration problem;

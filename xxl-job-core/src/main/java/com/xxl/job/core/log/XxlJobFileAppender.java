@@ -94,7 +94,7 @@ public class XxlJobFileAppender {
      * @param logFileName 日志名称
      * @param appendLog   追加的日志
      */
-    static void appendLog(String logFileName, String appendLog) {
+    public static void appendLog(String logFileName, String appendLog) {
 
         // log file
         if (StringUtils.isBlank(logFileName)) {

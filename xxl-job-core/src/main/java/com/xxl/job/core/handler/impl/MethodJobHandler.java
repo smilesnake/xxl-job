@@ -14,44 +14,45 @@ import java.lang.reflect.Method;
  */
 @AllArgsConstructor
 public class MethodJobHandler extends IJobHandler {
-    /**
-     * 目标类
-     */
-    private final Object target;
-    /**
-     * 目标方法
-     */
-    private final Method method;
-    /**
-     * 目标初始化方法
-     */
-    private Method initMethod;
-    /**
-     * 目标销毁方法
-     */
-    private Method destroyMethod;
 
-    @Override
-    public ReturnT<String> execute(String param) throws InvocationTargetException, IllegalAccessException {
-        return (ReturnT<String>) method.invoke(target, new Object[]{param});
-    }
+  /**
+   * 目标类
+   */
+  private final Object target;
+  /**
+   * 目标方法
+   */
+  private final Method method;
+  /**
+   * 目标初始化方法
+   */
+  private Method initMethod;
+  /**
+   * 目标销毁方法
+   */
+  private Method destroyMethod;
 
-    @Override
-    public void init() throws InvocationTargetException, IllegalAccessException {
-        if (initMethod != null) {
-            initMethod.invoke(target);
-        }
-    }
+  @Override
+  public void execute() throws InvocationTargetException, IllegalAccessException {
+    method.invoke(target);
+  }
 
-    @Override
-    public void destroy() throws InvocationTargetException, IllegalAccessException {
-        if (destroyMethod != null) {
-            destroyMethod.invoke(target);
-        }
+  @Override
+  public void init() throws InvocationTargetException, IllegalAccessException {
+    if (initMethod != null) {
+      initMethod.invoke(target);
     }
+  }
 
-    @Override
-    public String toString() {
-        return super.toString() + "[" + target.getClass() + "#" + method.getName() + "]";
+  @Override
+  public void destroy() throws InvocationTargetException, IllegalAccessException {
+    if (destroyMethod != null) {
+      destroyMethod.invoke(target);
     }
+  }
+
+  @Override
+  public String toString() {
+    return super.toString() + "[" + target.getClass() + "#" + method.getName() + "]";
+  }
 }

@@ -3,7 +3,7 @@ package com.xxl.job.core.biz.client;
 import com.xxl.job.core.biz.ExecutorBiz;
 import com.xxl.job.core.biz.model.LogResult;
 import com.xxl.job.core.biz.model.ReturnT;
-import com.xxl.job.core.biz.model.remote.Param;
+import com.xxl.job.core.biz.model.Param;
 import com.xxl.job.core.enums.BizUriEnum;
 import com.xxl.job.core.util.XxlJobRemotingUtil;
 
